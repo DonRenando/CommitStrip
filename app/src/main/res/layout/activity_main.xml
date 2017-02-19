@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:wheel="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_main"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentRight="true"
+    android:layout_alignParentEnd="true"
+    tools:context="donrenando.commitstrip.MainActivity">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
+
+        <Spinner
+            android:id="@+id/mode_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="49dp"
+            android:layout_weight="1" />
+
+        <Spinner
+            android:id="@+id/transform_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="49dp"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFF">
+
+        <ImageView
+            android:id="@+id/imageTmpAnim"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="#FFF"/>
+
+        <strip.TouchImageView
+            android:id="@+id/imageMadame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="#FFF" />
+
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center">
+        </ProgressBar>
+    </FrameLayout>
+</LinearLayout>

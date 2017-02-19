@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">CommitStrip</string>
+    <string name="action_settings">A propos</string>
+    <string name="action_save">Enregistrer</string>
+    <string name="close">Close</string>
+    <string name="action_fullscreen">Plein écran</string>
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="modes_array">
+        <item>Bonjour CommitStrip</item>
+    </string-array>
+    <string-array name="transform_array">
+        <item>Aucun</item>
+        <item>Grayscale</item>
+        <item>InvertFilter</item>
+        <item>SepiaFilter</item>
+        <item>SketchFilter</item>
+        <item>Blur</item>
+    </string-array>
+
+</resources>
