@@ -16,10 +16,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -28,6 +27,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import model.Strip;
 import strip.AddInCache;
 import strip.MyTarget;
 import strip.TouchImageView;
@@ -39,16 +39,17 @@ import static strip.PhotosUtils.save;
 
 public class MainActivity extends AppCompatActivity {
     private static final int ASK_WRITE_EXTERNAL_STORAGE_FOR_SAVE = 1;
-    public LinkedList<String> imageCache;
-    public LinkedList<String> imageHistory;
+    public LinkedList<Strip> imageCache;
+    public LinkedList<Strip> imageHistory;
     ArrayList<String> transformations;
     float initialX, initialY;
     private TouchImageView imageView;
-    private String currentImage;
+    private TextView titreStrip;
+    private Strip currentImage;
     private ArrayList<AddInCache> cacheThreads;
     private Context context;
     private String randomInAction;
-    private String classInAction;
+    private String classInAction, firstimg;
     private float finalX;
     private float finalY;
     private Vibrator v;
@@ -63,14 +64,17 @@ public class MainActivity extends AppCompatActivity {
         imageCache = new LinkedList<>();
         imageHistory = new LinkedList<>();
         currentImage = null;
-
+        firstimg = "";
+        randomInAction = "http://www.commitstrip.com/?random=1";
+        classInAction = "entry-content";
         imageView = (TouchImageView) findViewById(R.id.imageMadame);
+        titreStrip = (TextView) findViewById(R.id.titreCommitStrip);
 
         cacheThreads = new ArrayList<>();
 
         v = (Vibrator) this.context.getSystemService(Context.VIBRATOR_SERVICE);
 
-
+/*
         Spinner modeSpinner = (Spinner) findViewById(R.id.mode_spinner);
 
         ArrayAdapter<CharSequence> adapterModeSpinner = ArrayAdapter.createFromResource(this,
@@ -81,10 +85,13 @@ public class MainActivity extends AppCompatActivity {
 
         modeSpinner.setOnItemSelectedListener(new donrenando.commitstrip.ModeSpinner(this));
 
-
-
+*/
         mProgress = (ProgressBar) findViewById(R.id.progress_bar);
         mProgress.setVisibility(View.VISIBLE);
+
+        runAddInCache(randomInAction, classInAction, 2, true, firstimg);
+        v.vibrate(50);
+
 
         imageViewTarget = new MyTarget(context, imageView, mProgress, ((ImageView) findViewById(R.id.imageTmpAnim)));
 
@@ -185,15 +192,10 @@ public class MainActivity extends AppCompatActivity {
 
     void changeMode(String mode) {
         String firstimg;
-        switch (mode) {
-            case "Bonjour CommitStrip":
-            default: {
                 firstimg = "http://www.commitstrip.com/?random=1";
                 randomInAction = "http://www.commitstrip.com/?random=1";
                 classInAction = "entry-content";
-                break;
-            }
-        }
+
         initCount();
         runAddInCache(randomInAction, classInAction, 4, true, firstimg);
         popUpDown(mode);
@@ -219,10 +221,10 @@ public class MainActivity extends AppCompatActivity {
             currentImage = imageCache.poll();
             imageViewTarget.setAnimation(true);
             with(context)
-                    .load(currentImage)
+                    .load(currentImage.getUrl())
                     .priority(Picasso.Priority.HIGH)
-                    .transform(donrenando.commitstrip.TransformSpinner.getTransformation(context, transformations))
                     .into(imageViewTarget);
+            titreStrip.setText(currentImage.getTitle());
             runAddInCache(randomInAction, classInAction, 1, false, null);
         }
     }
@@ -233,11 +235,12 @@ public class MainActivity extends AppCompatActivity {
             currentImage = imageHistory.pop();
             imageViewTarget.setAnimation(false);
             with(context)
-                    .load(currentImage)
+                    .load(currentImage.getUrl())
                     .priority(Picasso.Priority.HIGH)
-                    .transform(donrenando.commitstrip.TransformSpinner.getTransformation(context, transformations))
                     .error(R.drawable.cast_ic_notification_disconnect)
                     .into(imageViewTarget);
+            titreStrip.setText(currentImage.getTitle());
+
         } else {
             popUpDown("Vous êtes sur le premier CommitStrip");
         }
@@ -245,10 +248,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void refreshImage() {
         with(context)
-                .load(currentImage)
+                .load(currentImage.getUrl())
                 .priority(Picasso.Priority.HIGH)
-                .transform(donrenando.commitstrip.TransformSpinner.getTransformation(context, transformations))
                 .into(imageViewTarget);
+        titreStrip.setText(currentImage.getTitle());
     }
 
     @Override
@@ -281,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_fullscreen:
                 Intent intent = new Intent(MainActivity.this, donrenando.commitstrip.FullscreenActivity.class);
                 Bundle extras = new Bundle();
-                extras.putString("url_current_image", currentImage);
+                extras.putString("url_current_image", currentImage.getUrl());
                 extras.putStringArrayList("transfos_current_image", transformations);
                 intent.putExtras(extras);
                 startActivity(intent);
@@ -326,10 +329,10 @@ public class MainActivity extends AppCompatActivity {
                     displayPicture(true);
                 }
             };
-            t.execute(urlFirst, classname, 1);
+            t.execute(urlFirst, classname, 1, true);
         }
         t = new AddInCache(this);
-        t.execute(url, classname, displayFirst ? nbImagesToCache - 1 : nbImagesToCache);
+        t.execute(url, classname, displayFirst ? nbImagesToCache - 1 : nbImagesToCache, false);
         cacheThreads.add(t);
     }
 
@@ -337,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
         return context;
     }
 
-    public Queue<String> getImageCache() {
+    public Queue<Strip> getImageCache() {
         return imageCache;
     }
 }

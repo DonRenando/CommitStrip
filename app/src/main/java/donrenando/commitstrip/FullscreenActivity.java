@@ -16,7 +16,6 @@ import strip.MyTarget;
 import strip.TouchImageView;
 
 import static com.squareup.picasso.Picasso.with;
-import static donrenando.commitstrip.TransformSpinner.getTransformation;
 
 
 public class FullscreenActivity extends Activity {
@@ -56,7 +55,6 @@ public class FullscreenActivity extends Activity {
         with(this.getBaseContext())
                 .load(url_current_image)
                 .priority(Picasso.Priority.HIGH)
-                .transform(getTransformation(this.getApplicationContext(), transfo_current_image))
                 .into(imageViewTarget);
 
     }
