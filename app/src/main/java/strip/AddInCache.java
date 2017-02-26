@@ -79,9 +79,7 @@ public class AddInCache extends AsyncTask<Object, Integer, Boolean> {
             Elements links = doc.getElementsByClass(className);
             for (Element link : links) {
                 innerHTMLlinks = link.getElementsByTag("img");
-                for (Element inner : innerHTMLlinks) {
-                    image = inner.attr("abs:src");
-                }
+                image = innerHTMLlinks.get(0).attr("abs:src");
             }
         } catch (Exception e) {
             e.printStackTrace();
