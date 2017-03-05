@@ -2,34 +2,22 @@ package strip
 
 
 import android.os.AsyncTask
-
+import com.squareup.picasso.Picasso.with
+import donrenando.commitstrip.MainActivity
+import model.Strip
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import org.xml.sax.SAXException
-
 import java.io.IOException
 import java.io.StringWriter
 import java.net.URL
-import java.util.regex.Matcher
 import java.util.regex.Pattern
-
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.parsers.ParserConfigurationException
-import javax.xml.transform.OutputKeys
-import javax.xml.transform.Transformer
-import javax.xml.transform.TransformerConfigurationException
-import javax.xml.transform.TransformerException
-import javax.xml.transform.TransformerFactory
+import javax.xml.transform.*
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-
-import donrenando.commitstrip.MainActivity
-import model.Strip
-
-import com.squareup.picasso.Picasso.with
 
 open class AddInCache(private val mainActivity: MainActivity) : AsyncTask<Any, Int, Boolean>() {
 
@@ -51,7 +39,8 @@ open class AddInCache(private val mainActivity: MainActivity) : AsyncTask<Any, I
             try {
                 if (isCancelled)
                     return false
-                with(mainActivity).load(imageUrl.url).noFade().get()
+                val safe_url = imageUrl.url.replace("é", "%C3%A9").replace("è", "%C3%A8").replace("à", "%C3%A0")
+                with(mainActivity).load(safe_url).noFade().get()
                 if (isCancelled)
                     return false
                 mainActivity.imageCache.add(imageUrl)

@@ -54,13 +54,16 @@ class MainActivity : AppCompatActivity() {
     private val imageViewTarget: MyTarget by lazy { MyTarget(context, imageView, mProgress, findViewById(R.id.imageTmpAnim) as ImageView) }
     val context: Context by lazy { applicationContext }
 
+    // Constantes fixes
+    val NB_CACHE = 5
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         mProgress.visibility = View.VISIBLE
 
-        runAddInCache(randomInAction, classInAction, 2, true, firstimg)
+        runAddInCache(randomInAction, classInAction, NB_CACHE, true, firstimg)
         v.vibrate(50)
 
         imageView.setOnTouchListener(View.OnTouchListener { _, event ->
@@ -166,7 +169,7 @@ class MainActivity : AppCompatActivity() {
         classInAction = "entry-content"
 
         initCount()
-        runAddInCache(randomInAction, classInAction, 4, true, firstimg)
+        runAddInCache(randomInAction, classInAction, NB_CACHE, true, firstimg)
         popUpDown(mode)
         v.vibrate(50)
     }
@@ -190,13 +193,14 @@ class MainActivity : AppCompatActivity() {
             if (currentImage != null)
                 imageHistory.push(currentImage)
             currentImage = imageCache.poll()
+            val safe_url = currentImage!!.url.replace("é", "%C3%A9").replace("è", "%C3%A8").replace("à", "%C3%A0")
             imageViewTarget.setAnimation(true)
             with(context)
-                    .load(currentImage!!.url)
+                    .load(safe_url)
                     .priority(Picasso.Priority.HIGH)
                     .into(imageViewTarget)
             titreStrip.text = currentImage!!.title
-            runAddInCache(randomInAction, classInAction, 1, false, null)
+            runAddInCache(randomInAction, classInAction, NB_CACHE, false, null)
         }
     }
 
