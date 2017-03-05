@@ -105,10 +105,10 @@ class MainActivity : AppCompatActivity() {
                 MotionEvent.ACTION_UP -> {
                     finalX = event.x
                     finalY = event.y
-                    if (initialX < finalX) {
+                    if (initialX < finalX && finalX - initialX > 100) {
                         displayPicture(false)
                     }
-                    if (initialX > finalX) {
+                    if (initialX > finalX && initialX - finalX > 100) {
                         displayPicture(true)
                     }
                     if (initialY < finalY) {
@@ -193,7 +193,14 @@ class MainActivity : AppCompatActivity() {
             if (currentImage != null)
                 imageHistory.push(currentImage)
             currentImage = imageCache.poll()
-            val safe_url = currentImage!!.url.replace("é", "%C3%A9").replace("è", "%C3%A8").replace("à", "%C3%A0")
+            val safe_url = currentImage!!.url
+                    .replace("é", "%C3%A9").replace("è", "%C3%A8").replace("ê", "%C3%AA").replace("ë", "%C3%AB")
+                    .replace("à", "%C3%A0").replace("â", "%C3%A2")
+                    .replace("ç", "%C3%A7")
+                    .replace("î", "%C3%AE").replace("ï", "%C3%AF")
+                    .replace("û", "%C3%BB").replace("ü", "%C3%BC")
+                    .replace("ô", "%C3%B4")
+            //println("Showing : "+safe_url)
             imageViewTarget.setAnimation(true)
             with(context)
                     .load(safe_url)
@@ -209,9 +216,17 @@ class MainActivity : AppCompatActivity() {
         if (!imageHistory.isEmpty()) {
             imageCache.addFirst(currentImage)
             currentImage = imageHistory.pop()
+            val safe_url = currentImage!!.url
+                    .replace("é", "%C3%A9").replace("è", "%C3%A8").replace("ê", "%C3%AA").replace("ë", "%C3%AB")
+                    .replace("à", "%C3%A0").replace("â", "%C3%A2")
+                    .replace("ç", "%C3%A7")
+                    .replace("î", "%C3%AE").replace("ï", "%C3%AF")
+                    .replace("û", "%C3%BB").replace("ü", "%C3%BC")
+                    .replace("ô", "%C3%B4")
+            //println("Showing : "+safe_url)
             imageViewTarget.setAnimation(false)
             with(context)
-                    .load(currentImage!!.url)
+                    .load(safe_url)
                     .priority(Picasso.Priority.HIGH)
                     .error(R.drawable.cast_ic_notification_disconnect)
                     .into(imageViewTarget)
@@ -251,7 +266,7 @@ class MainActivity : AppCompatActivity() {
                 alerte("Application non-officielle du site internet\n" +
                         "www.commitstrip.com." +
                         "\n\nApplication développée par DonRenando" +
-                        "\nAvec la contribution de sidya82"
+                        "\nAvec la contribution de sidya82 et danfr"
                 )
                 return true
             }

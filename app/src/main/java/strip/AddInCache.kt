@@ -27,6 +27,7 @@ open class AddInCache(private val mainActivity: MainActivity) : AsyncTask<Any, I
         val nbImageToCache = params[2] as Int
         val first = params[3] as Boolean
         var imageUrl: Strip
+        var safe_url = ""
 
 
         for (i in 0..nbImageToCache - 1) {
@@ -39,13 +40,20 @@ open class AddInCache(private val mainActivity: MainActivity) : AsyncTask<Any, I
             try {
                 if (isCancelled)
                     return false
-                val safe_url = imageUrl.url.replace("é", "%C3%A9").replace("è", "%C3%A8").replace("à", "%C3%A0")
+                safe_url = imageUrl.url
+                        .replace("é", "%C3%A9").replace("è", "%C3%A8").replace("ê", "%C3%AA").replace("ë", "%C3%AB")
+                        .replace("à", "%C3%A0").replace("â", "%C3%A2")
+                        .replace("ç", "%C3%A7")
+                        .replace("î", "%C3%AE").replace("ï", "%C3%AF")
+                        .replace("û", "%C3%BB").replace("ü", "%C3%BC")
+                        .replace("ô", "%C3%B4")
                 with(mainActivity).load(safe_url).noFade().get()
                 if (isCancelled)
                     return false
                 mainActivity.imageCache.add(imageUrl)
             } catch (e: IOException) {
                 e.printStackTrace()
+                System.err.println("ERROR when loading url : " + safe_url)
             }
 
         }
