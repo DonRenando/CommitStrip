@@ -20,13 +20,10 @@
 package strip
 
 import android.annotation.TargetApi
+import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Matrix
-import android.graphics.PointF
-import android.graphics.RectF
+import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
@@ -44,6 +41,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
 import android.widget.OverScroller
 import android.widget.Scroller
+import donrenando.commitstrip.MainActivity
 
 class TouchImageView : ImageView {
 
@@ -98,6 +96,11 @@ class TouchImageView : ImageView {
     private var doubleTapListener: GestureDetector.OnDoubleTapListener? = null
     private var userTouchListener: View.OnTouchListener? = null
     private var touchImageViewListener: OnTouchImageViewListener? = null
+    var parentActivity: Activity? = null
+    internal var initialX = 0f
+    internal var initialY = 0f
+    private var finalX: Float = 0f
+    private var finalY: Float = 0f
 
     constructor(context: Context) : super(context) {
         sharedConstructing(context)
@@ -861,6 +864,7 @@ class TouchImageView : ImageView {
         private val last = PointF()
 
         override fun onTouch(v: View, event: MotionEvent): Boolean {
+            customTouchEvent(event)
             mScaleDetector!!.onTouchEvent(event)
             mGestureDetector!!.onTouchEvent(event)
             val curr = PointF(event.x, event.y)
@@ -908,6 +912,64 @@ class TouchImageView : ImageView {
             // indicate event was handled
             //
             return true
+        }
+
+        private fun customTouchEvent(event: MotionEvent) {
+            if (parentActivity == null || parentActivity !is MainActivity)
+                return
+
+            val mainAct: MainActivity = (parentActivity!! as MainActivity)
+
+            //On bloque les autres actions si on est en zoom
+            if (java.lang.Float.compare(currentZoom, 1f) != 0)
+                return
+
+            when (event.action) {
+
+                MotionEvent.ACTION_DOWN -> {
+                    run {
+                        initialX = event.x
+                        initialY = event.y
+                    }
+                    run {
+                        finalX = event.x
+                        finalY = event.y
+
+                        if (initialX < finalX) {
+                            mainAct.displayPicture(false)
+                            //System.out.println("Left to Right swipe performed");
+                        }
+
+                        if (initialX > finalX) {
+                            mainAct.displayPicture(true)
+                            //System.out.println("Right to Left swipe performed");
+                        }
+
+                        if (initialY < finalY) {
+                            //System.out.println("Up to Down swipe performed");
+                        }
+
+                        if (initialY > finalY) {
+                            //System.out.println("Down to Up swipe performed");
+                        }
+                    }
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    finalX = event.x
+                    finalY = event.y
+                    if (initialX < finalX && finalX - initialX > 100) {
+                        mainAct.displayPicture(false)
+                    }
+                    if (initialX > finalX && initialX - finalX > 100) {
+                        mainAct.displayPicture(true)
+                    }
+                    if (initialY < finalY) {
+                    }
+                    if (initialY > finalY) {
+                    }
+                }
+            }
         }
     }
 

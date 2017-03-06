@@ -1,24 +1,18 @@
 package donrenando.commitstrip
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.ProgressBar
-
 import com.squareup.picasso.Picasso
-
-import java.util.ArrayList
-
+import com.squareup.picasso.Picasso.with
 import strip.MyTarget
 import strip.TouchImageView
 
-import com.squareup.picasso.Picasso.with
 
-
-class FullscreenActivity : Activity() {
+class FullscreenActivity : MainActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -32,6 +26,7 @@ class FullscreenActivity : Activity() {
         val transfo_current_image = extras.getStringArrayList("transfos_current_image")
 
         val imgDisplay: TouchImageView = findViewById(R.id.imageMadameFullScreen) as TouchImageView
+        imgDisplay.parentActivity = this
         val btnClose: Button = findViewById(R.id.btnClose) as Button
 
         val mProgress = findViewById(R.id.progress_bar) as ProgressBar
