@@ -4,4 +4,15 @@
     <string name="action_save">Enregistrer</string>
     <string name="close">Close</string>
     <string name="action_fullscreen">Plein écran</string>
+    <string name="title_download">Installer Mise à Jour</string>
+    <string name="ticker_download" />
+    <string name="update_available">Mise à Jour Disponible</string>
+    <string name="text_download">Téléchargement Terminé</string>
+    <string name="unable_to_open_file">Impossible d\'Ouvrir le Fichier</string>
+    <string name="LastVersionAvailable">Dernière Version Disponible :</string>
+    <string name="CurrentVersion">Version installée :</string>
+    <string name="action_mise_a_jour">Mise à jour</string>
+    <string name="InfoDesc">Application non-officielle de www.commitstrip.com</string>
+    <string name="InfoMainteneur">Application maintenu par :</string>
+    <string name="InfoContrib">Contributeurs :</string>
 </resources>

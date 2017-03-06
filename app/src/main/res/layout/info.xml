@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="center"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="25dp">
+
+        <TextView
+            android:text="@string/InfoDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/InfoDesc"
+            android:textAlignment="center"
+            android:textSize="18sp" />
+
+        <View style="@style/Divider" />
+
+        <TextView
+            android:text="@string/InfoMainteneur"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/InfoMainteneur"
+            android:textAlignment="center"
+            android:textSize="18sp" />
+
+        <TextView
+            android:text="DonRenando"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/mainteneur"
+            android:textSize="18sp"
+            android:textAlignment="center"
+            android:textStyle="normal|bold" />
+
+        <View style="@style/Divider"/>
+
+        <TextView
+            android:text="@string/InfoContrib"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/InfoContrib"
+            android:textAlignment="center"
+            android:textSize="18sp" />
+
+        <TextView
+            android:text="Sidya82"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/contrib1"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:textStyle="normal|bold" />
+
+        <TextView
+            android:text="Danfr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/contrib2"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:textStyle="normal|bold" />
+
+        <Button
+            android:text="OK"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/dialogButtonOK"
+            android:layout_marginTop="16dp" />
+    </LinearLayout>
+
+</RelativeLayout>
