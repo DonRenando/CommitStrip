@@ -3,7 +3,6 @@ package donrenando.commitstrip
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.AsyncTask
 import android.os.Bundle
@@ -12,8 +11,9 @@ import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-import android.view.MotionEvent
 import android.view.View
+import android.view.Window
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -29,7 +29,7 @@ import strip.TouchImageView
 import java.io.IOException
 import java.util.*
 
-class MainActivity : AppCompatActivity() {
+open class MainActivity : AppCompatActivity() {
     // Variables nullables
     private var currentImage: Strip? = null
 
@@ -37,14 +37,11 @@ class MainActivity : AppCompatActivity() {
     var imageCache: LinkedList<Strip> = LinkedList()
     var imageHistory: LinkedList<Strip> = LinkedList()
     internal var transformations: ArrayList<String> = ArrayList()
-    internal var initialX = 0f
-    internal var initialY = 0f
     private var cacheThreads: ArrayList<AddInCache> = ArrayList()
     private var randomInAction = "http://www.commitstrip.com/?random=1"
     private var classInAction = "entry-content"
     private var firstimg: String = ""
-    private var finalX: Float = 0f
-    private var finalY: Float = 0f
+    private var normal_visiblity = 0
 
     // Constantes auto-évaluées
     private val imageView: TouchImageView by lazy { findViewById(R.id.imageMadame) as TouchImageView }
@@ -52,6 +49,7 @@ class MainActivity : AppCompatActivity() {
     private val v: Vibrator by lazy { this.context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator }
     private val mProgress: ProgressBar by lazy { findViewById(R.id.progress_bar) as ProgressBar }
     private val imageViewTarget: MyTarget by lazy { MyTarget(context, imageView, mProgress, findViewById(R.id.imageTmpAnim) as ImageView) }
+    private val btnClose: Button by lazy { findViewById(R.id.btnClose) as Button }
     val context: Context by lazy { applicationContext }
 
     // Constantes fixes
@@ -60,66 +58,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestWindowFeature(Window.FEATURE_ACTION_BAR)
         setContentView(R.layout.activity_main)
         mProgress.visibility = View.VISIBLE
+        imageView.parentActivity = this
+        btnClose.visibility = View.GONE
+        btnClose.setOnClickListener({ switchToNormal() })
+        normal_visiblity = this.window.decorView.systemUiVisibility
 
         runAddInCache(randomInAction, classInAction, NB_CACHE, true, firstimg)
         v.vibrate(50)
-
-        imageView.setOnTouchListener(View.OnTouchListener { _, event ->
-            //On bloque les autres actions si on est en zoom
-            if (java.lang.Float.compare(imageView.currentZoom, 1.toFloat()) != 0)
-                return@OnTouchListener true
-
-            when (event.action) {
-
-                MotionEvent.ACTION_DOWN -> {
-                    run {
-                        initialX = event.x
-                        initialY = event.y
-                    }
-                    run {
-                        finalX = event.x
-                        finalY = event.y
-
-                        if (initialX < finalX) {
-                            displayPicture(false)
-                            //System.out.println("Left to Right swipe performed");
-                        }
-
-                        if (initialX > finalX) {
-                            displayPicture(true)
-                            //System.out.println("Right to Left swipe performed");
-                        }
-
-                        if (initialY < finalY) {
-                            //System.out.println("Up to Down swipe performed");
-                        }
-
-                        if (initialY > finalY) {
-                            //System.out.println("Down to Up swipe performed");
-                        }
-                    }
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    finalX = event.x
-                    finalY = event.y
-                    if (initialX < finalX && finalX - initialX > 100) {
-                        displayPicture(false)
-                    }
-                    if (initialX > finalX && initialX - finalX > 100) {
-                        displayPicture(true)
-                    }
-                    if (initialY < finalY) {
-                    }
-                    if (initialY > finalY) {
-                    }
-                }
-            }
-            true
-        })
-
     }
 
     public override fun onStart() {
@@ -273,12 +221,7 @@ class MainActivity : AppCompatActivity() {
 
 
             R.id.action_fullscreen -> {
-                val intent = Intent(this@MainActivity, donrenando.commitstrip.FullscreenActivity::class.java)
-                val extras = Bundle()
-                extras.putString("url_current_image", currentImage!!.url)
-                extras.putStringArrayList("transfos_current_image", transformations)
-                intent.putExtras(extras)
-                startActivity(intent)
+                switchToFullscreen()
                 return true
             }
 
@@ -286,12 +229,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun switchToFullscreen() {
+        this.supportActionBar?.hide()
+        btnClose.visibility = View.VISIBLE
+    }
+
+    private fun switchToNormal() {
+        this.supportActionBar?.show()
+        btnClose.visibility = View.GONE
+    }
+
     fun alerte(text: String) {
         val alertDialog = AlertDialog.Builder(this@MainActivity).create()
         alertDialog.setTitle("Info")
         alertDialog.setMessage(text)
-        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK"
-        ) { dialog, _ -> dialog.dismiss() }
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK") { dialog, _ -> dialog.dismiss() }
         alertDialog.show()
     }
 
