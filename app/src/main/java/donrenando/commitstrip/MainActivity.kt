@@ -15,7 +15,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.Window
-import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -25,9 +24,6 @@ import app.utils.PermissionUtils.isOnline
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.resource.drawable.GlideDrawable
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
 import donrenando.commitstrip.updateapk.MajActivity
 import model.Strip
 import strip.AddInCache
@@ -35,7 +31,6 @@ import strip.MyTarget
 import strip.PhotosUtils.save
 import strip.TouchImageView
 import java.io.IOException
-import java.lang.Exception
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -183,7 +178,6 @@ class MainActivity : AppCompatActivity() {
                     .replace("î", "%C3%AE").replace("ï", "%C3%AF")
                     .replace("û", "%C3%BB").replace("ü", "%C3%BC")
                     .replace("ô", "%C3%B4")
-            //println("Showing : "+safe_url)
             Glide.with(context)
                     .load(safe_url)
                     .priority(Priority.HIGH)

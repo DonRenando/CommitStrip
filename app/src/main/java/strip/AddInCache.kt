@@ -6,7 +6,6 @@ import com.bumptech.glide.Glide
 import donrenando.commitstrip.MainActivity
 import model.Strip
 import org.jsoup.Jsoup
-import org.jsoup.select.Elements
 import org.xml.sax.SAXException
 import java.io.IOException
 import java.io.StringWriter
@@ -41,13 +40,7 @@ open class AddInCache(private val mainActivity: MainActivity) : AsyncTask<Any, I
                 if (isCancelled)
                     return false
                 safe_url = imageUrl.url
-                        .replace("https", "http")
-                        .replace("é", "%C3%A9").replace("è", "%C3%A8").replace("ê", "%C3%AA").replace("ë", "%C3%AB")
-                        .replace("à", "%C3%A0").replace("â", "%C3%A2")
-                        .replace("ç", "%C3%A7")
-                        .replace("î", "%C3%AE").replace("ï", "%C3%AF")
-                        .replace("û", "%C3%BB").replace("ü", "%C3%BC")
-                        .replace("ô", "%C3%B4")
+
                 Glide.with(mainActivity).load(safe_url).downloadOnly(mainActivity.imageView.width, mainActivity.imageView.height)
                 if (isCancelled)
                     return false
@@ -62,23 +55,29 @@ open class AddInCache(private val mainActivity: MainActivity) : AsyncTask<Any, I
     }
 
     private fun siteToUrl(url: String, className: String): Strip {
-        var innerHTMLlinks: Elements
-        var image: String? = null
-        var titre: String? = null
+        var image: String? = ""
+        var titre: String? = ""
         try {
 
             val doc = Jsoup.connect(url).get()
             titre = doc.getElementsByClass("entry-title").text()
-            val links = doc.getElementsByClass(className)
-            for (link in links) {
-                innerHTMLlinks = link.getElementsByTag("img")
-                image = innerHTMLlinks[0].attr("abs:src")
-            }
+            image = doc.getElementsByClass(className).first().getElementsByTag("img").attr("abs:src")
+
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
-        return Strip(titre!!, image!!)
+        return Strip(titre!!, cleanUrl(image!!))
+    }
+
+
+    private fun cleanUrl(url: String): String {
+        return url.replace("https", "http")
+                .replace("é", "%C3%A9").replace("è", "%C3%A8").replace("ê", "%C3%AA")
+                .replace("ë", "%C3%AB").replace("à", "%C3%A0").replace("ô", "%C3%B4")
+                .replace("â", "%C3%A2").replace("ç", "%C3%A7").replace("î", "%C3%AE")
+                .replace("ï", "%C3%AF").replace("û", "%C3%BB").replace("ü", "%C3%BC")
+
     }
 
 
