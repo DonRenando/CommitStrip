@@ -5,14 +5,12 @@ import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.database.Cursor
 import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.widget.ImageView
-
+import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -20,7 +18,7 @@ import java.io.IOException
 
 object PhotosUtils {
     private fun writeImageView(imageView: ImageView): File? {
-        val draw = imageView.drawable as BitmapDrawable
+        val draw = imageView.drawable as GlideBitmapDrawable
         val bitmap = draw.bitmap
 
         val outStream: FileOutputStream
