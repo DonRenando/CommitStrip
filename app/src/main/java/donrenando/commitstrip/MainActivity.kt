@@ -17,6 +17,7 @@ import android.view.View
 import android.view.Window
 import android.view.animation.AnimationUtils
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import app.utils.PermissionUtils.askPermission
@@ -30,6 +31,7 @@ import com.bumptech.glide.request.target.Target
 import donrenando.commitstrip.updateapk.MajActivity
 import model.Strip
 import strip.AddInCache
+import strip.MyTarget
 import strip.PhotosUtils.save
 import strip.TouchImageView
 import java.io.IOException
@@ -56,6 +58,7 @@ class MainActivity : AppCompatActivity() {
     private val mProgress: ProgressBar by lazy { findViewById(R.id.progress_bar) as ProgressBar }
     private val btnClose: Button by lazy { findViewById(R.id.btnClose) as Button }
     val context: Context by lazy { applicationContext }
+    private val imageViewTarget: MyTarget by lazy { MyTarget(imageView, 10, context, imageView, mProgress, findViewById(R.id.imageTmpAnim) as ImageView) }
 
     // Constantes fixes
     val NB_CACHE = 5
@@ -144,6 +147,7 @@ class MainActivity : AppCompatActivity() {
             if (currentImage != null)
                 imageHistory.push(currentImage)
             currentImage = imageCache.poll()
+            imageViewTarget.setAnimation(true)
             val safe_url = currentImage!!.url
                     .replace("https", "http")
                     .replace("é", "%C3%A9").replace("è", "%C3%A8").replace("ê", "%C3%AA").replace("ë", "%C3%AB")
@@ -153,37 +157,24 @@ class MainActivity : AppCompatActivity() {
                     .replace("û", "%C3%BB").replace("ü", "%C3%BC")
                     .replace("ô", "%C3%B4")
             //println("Showing : "+safe_url)
-            imageView.animation = AnimationUtils.loadAnimation(context, R.anim.slide_from_right)
-            mProgress.visibility = View.VISIBLE
             Glide.with(context)
                     .load(safe_url)
-                    .listener(myRequestListener())
                     .priority(Priority.HIGH)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(imageView)
+                    .listener(imageViewTarget)
+                    .into(imageViewTarget)
             titreStrip.text = currentImage!!.title
             runAddInCache(randomInAction, classInAction, NB_CACHE, false, null)
         }
     }
 
-    private inner class myRequestListener : RequestListener<String, GlideDrawable> {
-        override fun onException(e: Exception?, model: String?, target: Target<GlideDrawable>?, isFirstResource: Boolean): Boolean {
-            mProgress.visibility = View.GONE
-            e?.printStackTrace()
-            return false
-        }
-
-        override fun onResourceReady(resource: GlideDrawable?, model: String?, target: Target<GlideDrawable>?, isFromMemoryCache: Boolean, isFirstResource: Boolean): Boolean {
-            mProgress.visibility = View.GONE
-            return false
-        }
-    }
 
     @Throws(IOException::class)
     private fun displayOldPicture() {
         if (!imageHistory.isEmpty()) {
             imageCache.addFirst(currentImage)
             currentImage = imageHistory.pop()
+            imageViewTarget.setAnimation(false)
             val safe_url = currentImage!!.url
                     .replace("https", "http")
                     .replace("é", "%C3%A9").replace("è", "%C3%A8").replace("ê", "%C3%AA").replace("ë", "%C3%AB")
@@ -193,14 +184,12 @@ class MainActivity : AppCompatActivity() {
                     .replace("û", "%C3%BB").replace("ü", "%C3%BC")
                     .replace("ô", "%C3%B4")
             //println("Showing : "+safe_url)
-            imageView.animation = AnimationUtils.loadAnimation(context, R.anim.slide_from_left)
-            mProgress.visibility = View.VISIBLE
             Glide.with(context)
                     .load(safe_url)
-                    .listener(myRequestListener())
                     .priority(Priority.HIGH)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .error(R.drawable.cast_ic_notification_disconnect)
+                    .listener(imageViewTarget)
                     .into(imageView)
             titreStrip.text = currentImage!!.title
 

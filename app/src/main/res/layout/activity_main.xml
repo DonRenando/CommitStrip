@@ -49,18 +49,19 @@
         android:layout_height="match_parent"
         android:background="#FFF">
 
-        <ImageView
-            android:id="@+id/imageTmpAnim"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="#FFF"/>
-
         <strip.TouchImageView
             android:id="@+id/imageMadame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="#FFF" />
 
+
+        <ImageView
+            android:id="@+id/imageTmpAnim"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="#FFF"
+            android:adjustViewBounds="true" />
 
         <ProgressBar
             android:id="@+id/progress_bar"
