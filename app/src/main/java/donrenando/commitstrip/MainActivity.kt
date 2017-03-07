@@ -2,7 +2,9 @@ package donrenando.commitstrip
 
 
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.AsyncTask
 import android.os.Bundle
@@ -21,6 +23,7 @@ import app.utils.PermissionUtils.askPermission
 import app.utils.PermissionUtils.isOnline
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Picasso.with
+import donrenando.commitstrip.updateapk.MajActivity
 import model.Strip
 import strip.AddInCache
 import strip.MyTarget
@@ -210,17 +213,24 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.action_settings -> {
-                alerte("Application non-officielle du site internet\n" +
-                        "www.commitstrip.com." +
-                        "\n\nApplication développée par DonRenando" +
-                        "\nAvec la contribution de sidya82 et danfr"
-                )
+                val dialog = Dialog(this)
+                dialog.setContentView(R.layout.info)
+
+                val dialogButton = dialog.findViewById(R.id.dialogButtonOK) as Button
+                dialogButton.setOnClickListener { dialog.dismiss() }
+                dialog.show()
                 return true
             }
 
 
             R.id.action_fullscreen -> {
                 switchToFullscreen()
+                return true
+            }
+
+            R.id.action_mise_a_jour -> {
+                val intentMaj = Intent(this@MainActivity, MajActivity::class.java)
+                startActivity(intentMaj)
                 return true
             }
 
