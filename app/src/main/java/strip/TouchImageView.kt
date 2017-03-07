@@ -38,12 +38,13 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
+
 import android.widget.ImageView
 import android.widget.OverScroller
 import android.widget.Scroller
 import donrenando.commitstrip.MainActivity
 
-class TouchImageView : ImageView {
+class TouchImageView : ImageView, Cloneable {
 
     //
     // Scale of image ranges from minScale to maxScale, where minScale == 1
@@ -112,6 +113,14 @@ class TouchImageView : ImageView {
 
     constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
         sharedConstructing(context)
+    }
+
+    override fun clone(): Any {
+        return super.clone()
+    }
+
+    fun getClone(): TouchImageView {
+        return clone() as TouchImageView
     }
 
     private fun sharedConstructing(context: Context) {
@@ -1292,20 +1301,3 @@ class TouchImageView : ImageView {
         private val SUPER_MAX_MULTIPLIER = 1.25f
     }
 }
-/**
- * Set zoom to the specified scale. Image will be centered by default.
-
- * @param scale
- */
-/**
- * Set zoom to the specified scale. Image will be centered around the point
- * (focusX, focusY). These floats range from 0 to 1 and denote the focus point
- * as a fraction from the left and top of the view. For example, the top left
- * corner of the image would be (0, 0). And the bottom right corner would be (1, 1).
-
- * @param scale
- * *
- * @param focusX
- * *
- * @param focusY
- */

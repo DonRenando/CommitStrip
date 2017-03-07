@@ -8,8 +8,8 @@ android {
         applicationId "donrenando.commitstrip"
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 8
-        versionName "3.2.1"
+        versionCode 9
+        versionName "3.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -30,11 +30,10 @@ dependencies {
     compile 'com.google.android.gms:play-services-auth:10.0.1'
     compile 'com.google.android.gms:play-services:10.0.1'
     compile 'com.android.support:design:22.2.0'
-    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.android.support:multidex:1.0.1'
     testCompile 'junit:junit:4.12'
     compile 'org.jsoup:jsoup:1.10.2'
-    compile 'jp.wasabeef:picasso-transformations:2.1.0'
     compile 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.4.1'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 }

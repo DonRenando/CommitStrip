@@ -15,21 +15,25 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.Window
+import android.view.animation.AnimationUtils
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import app.utils.PermissionUtils.askPermission
 import app.utils.PermissionUtils.isOnline
-import com.squareup.picasso.Picasso
-import com.squareup.picasso.Picasso.with
+import com.bumptech.glide.Glide
+import com.bumptech.glide.Priority
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.drawable.GlideDrawable
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import donrenando.commitstrip.updateapk.MajActivity
 import model.Strip
 import strip.AddInCache
-import strip.MyTarget
 import strip.PhotosUtils.save
 import strip.TouchImageView
 import java.io.IOException
+import java.lang.Exception
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -46,11 +50,10 @@ class MainActivity : AppCompatActivity() {
     private var firstimg: String = ""
 
     // Constantes auto-évaluées
-    private val imageView: TouchImageView by lazy { findViewById(R.id.imageMadame) as TouchImageView }
+    val imageView: TouchImageView by lazy { findViewById(R.id.imageMadame) as TouchImageView }
     private val titreStrip: TextView by lazy { findViewById(R.id.titreCommitStrip) as TextView }
     private val v: Vibrator by lazy { this.context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator }
     private val mProgress: ProgressBar by lazy { findViewById(R.id.progress_bar) as ProgressBar }
-    private val imageViewTarget: MyTarget by lazy { MyTarget(context, imageView, mProgress, findViewById(R.id.imageTmpAnim) as ImageView) }
     private val btnClose: Button by lazy { findViewById(R.id.btnClose) as Button }
     val context: Context by lazy { applicationContext }
 
@@ -150,13 +153,29 @@ class MainActivity : AppCompatActivity() {
                     .replace("û", "%C3%BB").replace("ü", "%C3%BC")
                     .replace("ô", "%C3%B4")
             //println("Showing : "+safe_url)
-            imageViewTarget.setAnimation(true)
-            with(context)
+            imageView.animation = AnimationUtils.loadAnimation(context, R.anim.slide_from_right)
+            mProgress.visibility = View.VISIBLE
+            Glide.with(context)
                     .load(safe_url)
-                    .priority(Picasso.Priority.HIGH)
-                    .into(imageViewTarget)
+                    .listener(myRequestListener())
+                    .priority(Priority.HIGH)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(imageView)
             titreStrip.text = currentImage!!.title
             runAddInCache(randomInAction, classInAction, NB_CACHE, false, null)
+        }
+    }
+
+    private inner class myRequestListener : RequestListener<String, GlideDrawable> {
+        override fun onException(e: Exception?, model: String?, target: Target<GlideDrawable>?, isFirstResource: Boolean): Boolean {
+            mProgress.visibility = View.GONE
+            e?.printStackTrace()
+            return false
+        }
+
+        override fun onResourceReady(resource: GlideDrawable?, model: String?, target: Target<GlideDrawable>?, isFromMemoryCache: Boolean, isFirstResource: Boolean): Boolean {
+            mProgress.visibility = View.GONE
+            return false
         }
     }
 
@@ -174,25 +193,20 @@ class MainActivity : AppCompatActivity() {
                     .replace("û", "%C3%BB").replace("ü", "%C3%BC")
                     .replace("ô", "%C3%B4")
             //println("Showing : "+safe_url)
-            imageViewTarget.setAnimation(false)
-            with(context)
+            imageView.animation = AnimationUtils.loadAnimation(context, R.anim.slide_from_left)
+            mProgress.visibility = View.VISIBLE
+            Glide.with(context)
                     .load(safe_url)
-                    .priority(Picasso.Priority.HIGH)
+                    .listener(myRequestListener())
+                    .priority(Priority.HIGH)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .error(R.drawable.cast_ic_notification_disconnect)
-                    .into(imageViewTarget)
+                    .into(imageView)
             titreStrip.text = currentImage!!.title
 
         } else {
             popUpDown("Vous êtes sur le premier CommitStrip")
         }
-    }
-
-    fun refreshImage() {
-        with(context)
-                .load(currentImage!!.url)
-                .priority(Picasso.Priority.HIGH)
-                .into(imageViewTarget)
-        titreStrip.text = currentImage!!.title
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

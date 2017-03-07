@@ -2,7 +2,7 @@ package strip
 
 
 import android.os.AsyncTask
-import com.squareup.picasso.Picasso.with
+import com.bumptech.glide.Glide
 import donrenando.commitstrip.MainActivity
 import model.Strip
 import org.jsoup.Jsoup
@@ -48,7 +48,7 @@ open class AddInCache(private val mainActivity: MainActivity) : AsyncTask<Any, I
                         .replace("î", "%C3%AE").replace("ï", "%C3%AF")
                         .replace("û", "%C3%BB").replace("ü", "%C3%BC")
                         .replace("ô", "%C3%B4")
-                with(mainActivity).load(safe_url).noFade().get()
+                Glide.with(mainActivity).load(safe_url).downloadOnly(mainActivity.imageView.width, mainActivity.imageView.height)
                 if (isCancelled)
                     return false
                 mainActivity.imageCache.add(imageUrl)
