@@ -29,7 +29,7 @@ import strip.TouchImageView
 import java.io.IOException
 import java.util.*
 
-open class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
     // Variables nullables
     private var currentImage: Strip? = null
 
@@ -41,7 +41,6 @@ open class MainActivity : AppCompatActivity() {
     private var randomInAction = "http://www.commitstrip.com/?random=1"
     private var classInAction = "entry-content"
     private var firstimg: String = ""
-    private var normal_visiblity = 0
 
     // Constantes auto-évaluées
     private val imageView: TouchImageView by lazy { findViewById(R.id.imageMadame) as TouchImageView }
@@ -64,8 +63,6 @@ open class MainActivity : AppCompatActivity() {
         imageView.parentActivity = this
         btnClose.visibility = View.GONE
         btnClose.setOnClickListener({ switchToNormal() })
-        normal_visiblity = this.window.decorView.systemUiVisibility
-
         runAddInCache(randomInAction, classInAction, NB_CACHE, true, firstimg)
         v.vibrate(50)
     }
@@ -142,6 +139,7 @@ open class MainActivity : AppCompatActivity() {
                 imageHistory.push(currentImage)
             currentImage = imageCache.poll()
             val safe_url = currentImage!!.url
+                    .replace("https", "http")
                     .replace("é", "%C3%A9").replace("è", "%C3%A8").replace("ê", "%C3%AA").replace("ë", "%C3%AB")
                     .replace("à", "%C3%A0").replace("â", "%C3%A2")
                     .replace("ç", "%C3%A7")
@@ -165,6 +163,7 @@ open class MainActivity : AppCompatActivity() {
             imageCache.addFirst(currentImage)
             currentImage = imageHistory.pop()
             val safe_url = currentImage!!.url
+                    .replace("https", "http")
                     .replace("é", "%C3%A9").replace("è", "%C3%A8").replace("ê", "%C3%AA").replace("ë", "%C3%AB")
                     .replace("à", "%C3%A0").replace("â", "%C3%A2")
                     .replace("ç", "%C3%A7")

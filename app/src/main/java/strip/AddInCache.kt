@@ -41,6 +41,7 @@ open class AddInCache(private val mainActivity: MainActivity) : AsyncTask<Any, I
                 if (isCancelled)
                     return false
                 safe_url = imageUrl.url
+                        .replace("https", "http")
                         .replace("é", "%C3%A9").replace("è", "%C3%A8").replace("ê", "%C3%AA").replace("ë", "%C3%AB")
                         .replace("à", "%C3%A0").replace("â", "%C3%A2")
                         .replace("ç", "%C3%A7")
