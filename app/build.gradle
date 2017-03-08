@@ -8,8 +8,8 @@ android {
         applicationId "donrenando.commitstrip"
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 11
-        versionName "3.4.1"
+        versionCode 12
+        versionName "3.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
