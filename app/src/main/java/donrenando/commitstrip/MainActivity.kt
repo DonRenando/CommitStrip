@@ -45,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     private var randomInAction = "http://www.commitstrip.com/?random=1"
     private var classInAction = "entry-content"
     private var firstimg: String = ""
+    private var prop = Properties()
 
     // Constantes auto-évaluées
     val imageView: TouchImageView by lazy { findViewById(R.id.imageMadame) as TouchImageView }
@@ -54,9 +55,7 @@ class MainActivity : AppCompatActivity() {
     private val btnClose: Button by lazy { findViewById(R.id.btnClose) as Button }
     val context: Context by lazy { applicationContext }
     private val imageViewTarget: MyTarget by lazy { MyTarget(imageView, 10, context, imageView, mProgress, findViewById(R.id.imageTmpAnim) as ImageView) }
-
-    // Constantes fixes
-    val NB_CACHE = 5
+    private val NB_CACHE: Int by lazy { prop.getProperty("NB_CACHE").toInt() }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +66,14 @@ class MainActivity : AppCompatActivity() {
         imageView.parentActivity = this
         btnClose.visibility = View.GONE
         btnClose.setOnClickListener({ switchToNormal() })
-        runAddInCache(randomInAction, classInAction, NB_CACHE, true, firstimg)
+        try {
+            //load a properties file
+            prop.load(baseContext.assets.open("app.properties"))
+        } catch (ex: IOException) {
+            ex.printStackTrace()
+        }
+
+        runAddInCache(NB_CACHE, true, firstimg)
         v.vibrate(50)
     }
 
@@ -118,7 +124,7 @@ class MainActivity : AppCompatActivity() {
         classInAction = "entry-content"
 
         initCount()
-        runAddInCache(randomInAction, classInAction, NB_CACHE, true, firstimg)
+        runAddInCache(NB_CACHE, true, firstimg)
         popUpDown(mode)
         v.vibrate(50)
     }
@@ -159,7 +165,7 @@ class MainActivity : AppCompatActivity() {
                     .listener(imageViewTarget)
                     .into(imageViewTarget)
             titreStrip.text = currentImage!!.title
-            runAddInCache(randomInAction, classInAction, NB_CACHE, false, null)
+            runAddInCache(NB_CACHE, false, null)
         }
     }
 
@@ -259,7 +265,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun runAddInCache(url: String, classname: String, nbImagesToCache: Int, displayFirst: Boolean, urlFirst: String?) {
+    fun runAddInCache(nbImagesToCache: Int, displayFirst: Boolean, urlFirst: String?) {
         if (!isOnline(context)) {
             alerte("Vous avez besoin d'une connexion internet !")
             return
@@ -272,10 +278,10 @@ class MainActivity : AppCompatActivity() {
                     displayPicture(true)
                 }
             }
-            t.execute(urlFirst, classname, 1, true)
+            t.execute(prop, 1, true)
         }
         t = AddInCache(this)
-        t.execute(url, classname, if (displayFirst) nbImagesToCache - 1 else nbImagesToCache, false)
+        t.execute(prop, if (displayFirst) nbImagesToCache - 1 else nbImagesToCache, false)
         cacheThreads.add(t)
     }
 

@@ -47,7 +47,7 @@ open class MyTarget(view: ImageView?, maxLoopCount: Int, private val context: Co
 
     override fun onException(e: Exception?, model: String?, target: Target<GlideDrawable>?, isFirstResource: Boolean): Boolean {
         progressBar.visibility = View.GONE
-        imageTmp!!.visibility = View.GONE
+        imageTmp.visibility = View.GONE
         //TODO: ajouter une image d'erreur
         return true
     }
