@@ -1,80 +1,56 @@
 package strip
 
 
-import android.app.Activity
-import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
+import android.os.AsyncTask
 import android.os.Environment
-import android.provider.MediaStore
-import android.widget.ImageView
-import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable
+import app.MainActivity
+import org.apache.commons.io.FileUtils
 import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
+import java.net.URL
+import java.util.regex.Pattern
 
-object PhotosUtils {
-    private fun writeImageView(imageView: ImageView): File? {
-        val draw = imageView.drawable as GlideBitmapDrawable
-        val bitmap = draw.bitmap
+class PhotosUtils : AsyncTask<Any, Void, Boolean>() {
+    override fun doInBackground(vararg p: Any?): Boolean {
+        val activity = p[0] as MainActivity?
+        val url = p[1] as String?
 
-        val outStream: FileOutputStream
+        if (activity != null && url != null) {
+            try {
+                val f = writeImage(url) ?: return false
+                val u = Uri.fromFile(f)
+                val intent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+                intent.data = u
+                activity.baseContext.sendBroadcast(intent)
+                activity.popUpDown("Image enregistrée !")
+            } catch(e: Exception) {
+                e.printStackTrace()
+                activity.popUpDown("Echec dans l'enregistrement de l'image !")
+            }
+
+            return true
+        }
+
+        return false
+    }
+
+    private fun writeImage(url: String): File? {
         val sdCard = Environment.getExternalStorageDirectory()
         val dir = File(sdCard.absolutePath + "/commitStrip")
         dir.mkdirs()
-        val fileName = String.format("%d.jpg", System.currentTimeMillis())
+        var extension = ""
+        val p = Pattern.compile("^.*\\.([A-Za-z]{3,4})$")
+        val m = p.matcher(url)
+        if (m.matches() && m.groupCount() == 1) {
+            extension = m.group(1)
+        } else {
+            throw Exception("L'url ne correspond pas au pattern : " + url)
+        }
+        val fileName = String.format("%d.$extension", System.currentTimeMillis())
         val outFile = File(dir, fileName)
-        try {
-            outStream = FileOutputStream(outFile)
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace()
-            return null
-        }
-
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream)
-        try {
-            outStream.flush()
-            outStream.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
-            return null
-        }
+        FileUtils.copyURLToFile(URL(url), outFile)
 
         return outFile
-    }
-
-    fun save(activity: Activity, imageView: ImageView): Boolean {
-        val f = writeImageView(imageView) ?: return false
-        val u = Uri.fromFile(f)
-        val intent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
-        intent.data = u
-        activity.baseContext.sendBroadcast(intent)
-        return true
-    }
-
-
-    private fun getImageContentUri(context: Context, absPath: String): Uri? {
-
-        val cursor = context.contentResolver.query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, arrayOf(MediaStore.Images.Media._ID), MediaStore.Images.Media.DATA + "=? ", arrayOf(absPath), null)
-
-        if (cursor != null && cursor.moveToFirst()) {
-            val id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID))
-            cursor.close()
-            return Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, Integer.toString(id))
-
-        } else if (!absPath.isEmpty()) {
-            val values = ContentValues()
-            values.put(MediaStore.Images.Media.DATA, absPath)
-            cursor!!.close()
-            return context.contentResolver.insert(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-        } else {
-            cursor!!.close()
-            return null
-        }
     }
 }

@@ -29,7 +29,7 @@ import model.FixedQueue
 import model.Strip
 import strip.AddInCache
 import strip.MyTarget
-import strip.PhotosUtils.save
+import strip.PhotosUtils
 import strip.TouchImageView
 import java.io.IOException
 import java.util.*
@@ -95,10 +95,10 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             ASK_WRITE_EXTERNAL_STORAGE_FOR_SAVE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (save(this, imageView))
-                        popUpDown("Image enregistrée !")
-                    else
-                        popUpDown("Erreur lors l'ajout de la photo !")
+                    if (currentImage != null) {
+                        val pu = PhotosUtils()
+                        pu.execute(this, currentImage!!.url)
+                    }
                 }
             }
         }
@@ -214,10 +214,10 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.action_save -> {
                 if (askPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, ASK_WRITE_EXTERNAL_STORAGE_FOR_SAVE) && isOnline(context)) {
-                    if (save(this, imageView))
-                        popUpDown("Photo enregistrée")
-                    else
-                        popUpDown("Erreur lors de l'enregistrement !")
+                    if (currentImage != null) {
+                        val pu = PhotosUtils()
+                        pu.execute(this, currentImage!!.url)
+                    }
                 }
                 return true
             }
