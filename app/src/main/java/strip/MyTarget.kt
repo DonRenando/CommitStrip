@@ -7,12 +7,12 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.ProgressBar
+import app.R
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget
 import com.bumptech.glide.request.target.Target
-import donrenando.commitstrip.R
 import java.lang.Exception
 
 

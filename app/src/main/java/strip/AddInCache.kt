@@ -2,8 +2,8 @@ package strip
 
 
 import android.os.AsyncTask
+import app.MainActivity
 import com.bumptech.glide.Glide
-import donrenando.commitstrip.MainActivity
 import model.Strip
 import org.jsoup.Jsoup
 import java.io.IOException

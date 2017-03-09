@@ -42,7 +42,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
 import android.widget.OverScroller
 import android.widget.Scroller
-import donrenando.commitstrip.MainActivity
+import app.MainActivity
 
 class TouchImageView : ImageView {
     //
