@@ -25,6 +25,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import donrenando.commitstrip.updateapk.MajActivity
+import model.FixedQueue
 import model.Strip
 import strip.AddInCache
 import strip.MyTarget
@@ -36,15 +37,11 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     // Variables nullables
     private var currentImage: Strip? = null
+    var imageHistory: FixedQueue<Strip>? = null
 
     // Variables non-nulles
     var imageCache: LinkedList<Strip> = LinkedList()
-    var imageHistory: LinkedList<Strip> = LinkedList()
-    internal var transformations: ArrayList<String> = ArrayList()
     private var cacheThreads: ArrayList<AddInCache> = ArrayList()
-    private var randomInAction = "http://www.commitstrip.com/?random=1"
-    private var classInAction = "entry-content"
-    private var firstimg: String = ""
     private var prop = Properties()
 
     // Constantes auto-évaluées
@@ -56,7 +53,6 @@ class MainActivity : AppCompatActivity() {
     val context: Context by lazy { applicationContext }
     private val imageViewTarget: MyTarget by lazy { MyTarget(imageView, 10, context, imageView, mProgress, findViewById(R.id.imageTmpAnim) as ImageView) }
     private val NB_CACHE: Int by lazy { prop.getProperty("NB_CACHE").toInt() }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,7 +69,8 @@ class MainActivity : AppCompatActivity() {
             ex.printStackTrace()
         }
 
-        runAddInCache(NB_CACHE, true, firstimg)
+        imageHistory = FixedQueue(prop.getProperty("STACK_SIZE").toInt())
+        runAddInCache(NB_CACHE, true)
         v.vibrate(50)
     }
 
@@ -92,7 +89,6 @@ class MainActivity : AppCompatActivity() {
 
     public override fun onDestroy() {
         super.onDestroy()
-
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -108,28 +104,34 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Reinit history and cache at mode change (UNUSED)
+     */
     private fun initCount() {
         cacheThreads
                 .filter { it.status != AsyncTask.Status.FINISHED }
                 .forEach { it.cancel(true) }
         cacheThreads = ArrayList<AddInCache>()
         imageCache = LinkedList<Strip>()
-        imageHistory = LinkedList<Strip>()
+        imageHistory = FixedQueue<Strip>(prop.getProperty("STACK_SIZE").toInt())
         currentImage = null
     }
 
+    /**
+     * Switch to another mode (UNUSED)
+     */
     internal fun changeMode(mode: String) {
-        firstimg = "http://www.commitstrip.com/?random=1"
-        randomInAction = "http://www.commitstrip.com/?random=1"
-        classInAction = "entry-content"
-
         initCount()
-        runAddInCache(NB_CACHE, true, firstimg)
+        runAddInCache(NB_CACHE, true)
         popUpDown(mode)
         v.vibrate(50)
     }
 
-
+    /**
+     * Choose to display Nex or older picture
+     *
+     * @param forward : True if new picture, false otherwise
+     */
     fun displayPicture(forward: Boolean) {
         try {
             if (forward)
@@ -142,11 +144,14 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * Display a new picture from cache and adding it to history
+     */
     @Throws(IOException::class)
     private fun displayNewPicture() {
         if (!imageCache.isEmpty()) {
             if (currentImage != null)
-                imageHistory.push(currentImage)
+                imageHistory!!.push(currentImage!!)
             currentImage = imageCache.poll()
             imageViewTarget.setAnimation(true)
             val safe_url = currentImage!!.url
@@ -165,16 +170,18 @@ class MainActivity : AppCompatActivity() {
                     .listener(imageViewTarget)
                     .into(imageViewTarget)
             titreStrip.text = currentImage!!.title
-            runAddInCache(NB_CACHE, false, null)
+            runAddInCache(1, false)
         }
     }
 
-
+    /**
+     * Display a new picture from history and adding it on the top of cache
+     */
     @Throws(IOException::class)
     private fun displayOldPicture() {
-        if (!imageHistory.isEmpty()) {
+        if (!imageHistory!!.isEmpty()) {
             imageCache.addFirst(currentImage)
-            currentImage = imageHistory.pop()
+            currentImage = imageHistory!!.pop()
             imageViewTarget.setAnimation(false)
             val safe_url = currentImage!!.url
                     .replace("https", "http")
@@ -241,16 +248,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Hide ActionBar
+     */
     private fun switchToFullscreen() {
         this.supportActionBar?.hide()
         btnClose.visibility = View.VISIBLE
     }
 
+    /**
+     * Show ActionBar
+     */
     private fun switchToNormal() {
         this.supportActionBar?.show()
         btnClose.visibility = View.GONE
     }
 
+    /**
+     * Show "A propos"
+     */
     fun alerte(text: String) {
         val alertDialog = AlertDialog.Builder(this@MainActivity).create()
         alertDialog.setTitle("Info")
@@ -259,13 +275,22 @@ class MainActivity : AppCompatActivity() {
         alertDialog.show()
     }
 
-
+    /**
+     * Show message in a popup at the bottom of the screen
+     *
+     * @param text : Message to be shown
+     */
     fun popUpDown(text: String) {
         Snackbar.make(imageView, text, Snackbar.LENGTH_LONG).show()
     }
 
-
-    fun runAddInCache(nbImagesToCache: Int, displayFirst: Boolean, urlFirst: String?) {
+    /**
+     * Run a background process lo preload pictures into the image cache
+     *
+     * @param nbImagesToCache : Cache size
+     * @param displayFirst : True if this is the first picture to load
+     */
+    fun runAddInCache(nbImagesToCache: Int, displayFirst: Boolean) {
         if (!isOnline(context)) {
             alerte("Vous avez besoin d'une connexion internet !")
             return
@@ -283,10 +308,6 @@ class MainActivity : AppCompatActivity() {
         t = AddInCache(this)
         t.execute(prop, if (displayFirst) nbImagesToCache - 1 else nbImagesToCache, false)
         cacheThreads.add(t)
-    }
-
-    fun getImageCache(): Queue<Strip> {
-        return imageCache
     }
 
     companion object {

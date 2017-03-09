@@ -44,21 +44,7 @@ import android.widget.OverScroller
 import android.widget.Scroller
 import donrenando.commitstrip.MainActivity
 
-class TouchImageView : ImageView, Cloneable {
-
-    //
-    // Scale of image ranges from minScale to maxScale, where minScale == 1
-    // when the image is stretched to fit view.
-    //
-    /**
-     * Get the current zoom. This is the zoom relative to the initial
-     * scale, not the original resource.
-
-     * @return current zoom multiplier.
-     */
-    var currentZoom: Float = 0f
-        private set
-
+class TouchImageView : ImageView {
     //
     // Matrix applied to image. MSCALE_X and MSCALE_Y should always be equal.
     // MTRANS_X and MTRANS_Y are the other values used. prevMatrix is the myMatrix
@@ -103,6 +89,101 @@ class TouchImageView : ImageView, Cloneable {
     private var finalX: Float = 0f
     private var finalY: Float = 0f
 
+    //
+    // Scale of image ranges from minScale to maxScale, where minScale == 1
+    // when the image is stretched to fit view.
+    //
+    /**
+     * Get the current zoom. This is the zoom relative to the initial
+     * scale, not the original resource.
+
+     * @return current zoom multiplier.
+     */
+    var currentZoom: Float = 0f
+        private set
+
+    /**
+     * Return a Rect representing the zoomed image.
+
+     * @return rect representing zoomed image
+     */
+    val zoomedRect: RectF
+        get() {
+            if (mScaleType == ImageView.ScaleType.FIT_XY) {
+                throw UnsupportedOperationException("getZoomedRect() not supported with FIT_XY")
+            }
+            val topLeft = transformCoordTouchToBitmap(0f, 0f, true)
+            val bottomRight = transformCoordTouchToBitmap(viewWidth.toFloat(), viewHeight.toFloat(), true)
+
+            val w = drawable.intrinsicWidth.toFloat()
+            val h = drawable.intrinsicHeight.toFloat()
+            return RectF(topLeft.x / w, topLeft.y / h, bottomRight.x / w, bottomRight.y / h)
+        }
+
+    /**
+     * Returns false if image is in initial, unzoomed state. False, otherwise.
+
+     * @return true if image is zoomed
+     */
+    val isZoomed: Boolean
+        get() = currentZoom != 1f
+
+
+    /**
+     * Get the max zoom multiplier.
+
+     * @return max zoom multiplier.
+     */
+    /**
+     * Set the max zoom multiplier. Default value: 3.
+
+     * @param max max zoom multiplier.
+     */
+    var maxZoom: Float
+        get() = maxScale
+        set(max) {
+            maxScale = max
+            superMaxScale = SUPER_MAX_MULTIPLIER * maxScale
+        }
+
+    /**
+     * Get the min zoom multiplier.
+
+     * @return min zoom multiplier.
+     */
+    /**
+     * Set the min zoom multiplier. Default value: 1.
+
+     * @param min min zoom multiplier.
+     */
+    var minZoom: Float
+        get() = minScale
+        set(min) {
+            minScale = min
+            superMinScale = SUPER_MIN_MULTIPLIER * minScale
+        }
+
+    /**
+     * Return the point at the center of the zoomed image. The PointF coordinates range
+     * in value between 0 and 1 and the focus point is denoted as a fraction from the left
+     * and top of the view. For example, the top left corner of the image would be (0, 0).
+     * And the bottom right corner would be (1, 1).
+
+     * @return PointF representing the scroll position of the zoomed image.
+     */
+    val scrollPosition: PointF?
+        get() {
+            val drawable = drawable ?: return null
+            val drawableWidth = drawable.intrinsicWidth
+            val drawableHeight = drawable.intrinsicHeight
+
+            val point = transformCoordTouchToBitmap((viewWidth / 2).toFloat(), (viewHeight / 2).toFloat(), true)
+            point.x /= drawableWidth.toFloat()
+            point.y /= drawableHeight.toFloat()
+            return point
+        }
+
+
     constructor(context: Context) : super(context) {
         sharedConstructing(context)
     }
@@ -113,14 +194,6 @@ class TouchImageView : ImageView, Cloneable {
 
     constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(context, attrs, defStyle) {
         sharedConstructing(context)
-    }
-
-    override fun clone(): Any {
-        return super.clone()
-    }
-
-    fun getClone(): TouchImageView {
-        return clone() as TouchImageView
     }
 
     private fun sharedConstructing(context: Context) {
@@ -189,32 +262,6 @@ class TouchImageView : ImageView, Cloneable {
     }
 
     /**
-     * Returns false if image is in initial, unzoomed state. False, otherwise.
-
-     * @return true if image is zoomed
-     */
-    val isZoomed: Boolean
-        get() = currentZoom != 1f
-
-    /**
-     * Return a Rect representing the zoomed image.
-
-     * @return rect representing zoomed image
-     */
-    val zoomedRect: RectF
-        get() {
-            if (mScaleType == ImageView.ScaleType.FIT_XY) {
-                throw UnsupportedOperationException("getZoomedRect() not supported with FIT_XY")
-            }
-            val topLeft = transformCoordTouchToBitmap(0f, 0f, true)
-            val bottomRight = transformCoordTouchToBitmap(viewWidth.toFloat(), viewHeight.toFloat(), true)
-
-            val w = drawable.intrinsicWidth.toFloat()
-            val h = drawable.intrinsicHeight.toFloat()
-            return RectF(topLeft.x / w, topLeft.y / h, bottomRight.x / w, bottomRight.y / h)
-        }
-
-    /**
      * Save the current myMatrix and view dimensions
      * in the prevMatrix and prevView variables.
      */
@@ -277,48 +324,6 @@ class TouchImageView : ImageView, Cloneable {
     }
 
     /**
-     * Get the max zoom multiplier.
-
-     * @return max zoom multiplier.
-     */
-    /**
-     * Set the max zoom multiplier. Default value: 3.
-
-     * @param max max zoom multiplier.
-     */
-    var maxZoom: Float
-        get() = maxScale
-        set(max) {
-            maxScale = max
-            superMaxScale = SUPER_MAX_MULTIPLIER * maxScale
-        }
-
-    /**
-     * Get the min zoom multiplier.
-
-     * @return min zoom multiplier.
-     */
-    /**
-     * Set the min zoom multiplier. Default value: 1.
-
-     * @param min min zoom multiplier.
-     */
-    var minZoom: Float
-        get() = minScale
-        set(min) {
-            minScale = min
-            superMinScale = SUPER_MIN_MULTIPLIER * minScale
-        }
-
-    /**
-     * Reset zoom and translation to initial state.
-     */
-    fun resetZoom() {
-        currentZoom = 1f
-        fitImageToView()
-    }
-
-    /**
      * Set zoom to the specified scale. Image will be centered around the point
      * (focusX, focusY). These floats range from 0 to 1 and denote the focus point
      * as a fraction from the left and top of the view. For example, the top left
@@ -368,24 +373,12 @@ class TouchImageView : ImageView, Cloneable {
     }
 
     /**
-     * Return the point at the center of the zoomed image. The PointF coordinates range
-     * in value between 0 and 1 and the focus point is denoted as a fraction from the left
-     * and top of the view. For example, the top left corner of the image would be (0, 0).
-     * And the bottom right corner would be (1, 1).
-
-     * @return PointF representing the scroll position of the zoomed image.
+     * Reset zoom and translation to initial state.
      */
-    val scrollPosition: PointF?
-        get() {
-            val drawable = drawable ?: return null
-            val drawableWidth = drawable.intrinsicWidth
-            val drawableHeight = drawable.intrinsicHeight
-
-            val point = transformCoordTouchToBitmap((viewWidth / 2).toFloat(), (viewHeight / 2).toFloat(), true)
-            point.x /= drawableWidth.toFloat()
-            point.y /= drawableHeight.toFloat()
-            return point
-        }
+    fun resetZoom() {
+        currentZoom = 1f
+        fitImageToView()
+    }
 
     /**
      * Set the focus point of the zoomed image. The focus points are denoted as a fraction from the
@@ -805,12 +798,6 @@ class TouchImageView : ImageView, Cloneable {
         fun onMove()
     }
 
-    /**
-     * Gesture Listener detects a single click or long click and passes that on
-     * to the view's listener.
-
-     * @author Ortiz
-     */
     private inner class GestureListener : GestureDetector.SimpleOnGestureListener() {
 
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
@@ -862,8 +849,6 @@ class TouchImageView : ImageView, Cloneable {
     /**
      * Responsible for all touch events. Handles the heavy lifting of drag and also sends
      * touch events to Scale Detector and Gesture Detector.
-
-     * @author Ortiz
      */
     private inner class PrivateOnTouchListener : View.OnTouchListener {
 
@@ -984,8 +969,6 @@ class TouchImageView : ImageView, Cloneable {
 
     /**
      * ScaleListener detects user two finger scaling and scales image.
-
-     * @author Ortiz
      */
     private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
@@ -1029,8 +1012,6 @@ class TouchImageView : ImageView, Cloneable {
     /**
      * DoubleTapZoom calls a series of runnables which apply
      * an animated zoom in/out graphic to the image.
-
-     * @author Ortiz
      */
     private inner class DoubleTapZoom internal constructor(private val targetZoom: Float, focusX: Float, focusY: Float, private val stretchImageToSuper: Boolean) : Runnable {
         private val startTime: Long
@@ -1134,8 +1115,6 @@ class TouchImageView : ImageView, Cloneable {
      * Fling launches sequential runnables which apply
      * the fling graphic to the image. The values for the translation
      * are interpolated by the Scroller.
-
-     * @author Ortiz
      */
     private inner class Fling internal constructor(velocityX: Int, velocityY: Int) : Runnable {
 
