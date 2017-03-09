@@ -11,10 +11,7 @@ import android.os.Bundle
 import android.os.Vibrator
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.Window
+import android.view.*
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -254,6 +251,8 @@ class MainActivity : AppCompatActivity() {
     private fun switchToFullscreen() {
         this.supportActionBar?.hide()
         btnClose.visibility = View.VISIBLE
+        window.clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
+        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
     }
 
     /**
@@ -262,6 +261,8 @@ class MainActivity : AppCompatActivity() {
     private fun switchToNormal() {
         this.supportActionBar?.show()
         btnClose.visibility = View.GONE
+        window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        window.addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
     }
 
     /**
