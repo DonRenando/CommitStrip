@@ -48,7 +48,7 @@ With this application, you can save any image on your phone to find it later<br>
 
 ## Downloads
 The latest release version : 
-[HERE](http://repo.rdrive.ovh/download/BonjourSenorita/Bonjour_Senorita/last) <br>
+[HERE](http://repo.rdrive.ovh/download/CommitStrip/CommitStrip/last) <br>
 This link should always point to the most recent release.
 
 # License
