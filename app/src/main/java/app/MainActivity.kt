@@ -3,9 +3,12 @@ package app
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.wifi.WifiManager
 import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Vibrator
@@ -31,6 +34,7 @@ import strip.TouchImageView
 import java.io.IOException
 import java.util.*
 
+
 class MainActivity : AppCompatActivity() {
     // Variables nullables
     private var currentImage: Strip? = null
@@ -49,7 +53,7 @@ class MainActivity : AppCompatActivity() {
     private val btnClose: Button by lazy { findViewById(R.id.btnClose) as Button }
     val context: Context by lazy { applicationContext }
     private val imageViewTarget: MyTarget by lazy { MyTarget(imageView, 10, context, imageView, mProgress, findViewById(R.id.imageTmpAnim) as ImageView) }
-    private val NB_CACHE: Int by lazy { prop.getProperty("NB_CACHE").toInt() }
+    private var NB_CACHE: Int = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +70,7 @@ class MainActivity : AppCompatActivity() {
             ex.printStackTrace()
         }
 
+        checkWifi()
         imageHistory = FixedQueue(prop.getProperty("STACK_SIZE").toInt())
         runAddInCache(NB_CACHE, true)
         v.vibrate(50)
@@ -81,7 +86,6 @@ class MainActivity : AppCompatActivity() {
 
     public override fun onStop() {
         super.onStop()
-        // TODO: Stockage app pour reprise + charger la reprise
     }
 
     public override fun onDestroy() {
@@ -245,6 +249,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun checkWifi(): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = cm.activeNetworkInfo
+        val isWiFi = activeNetwork.type == ConnectivityManager.TYPE_WIFI
+        if (isWiFi)
+            NB_CACHE = prop.getProperty("NB_CACHE_WIFI").toInt()
+        else
+            NB_CACHE = prop.getProperty("NB_CACHE_MOBILE").toInt()
+
+        return isWiFi
+    }
+
+
     /**
      * Hide ActionBar
      */
@@ -313,5 +330,20 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private val ASK_WRITE_EXTERNAL_STORAGE_FOR_SAVE = 1
+    }
+
+    inner class MyBroadcastReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val action = intent.action
+            if (action == WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION) {
+                if (intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false)) {
+                    if (checkWifi()) {
+                        runAddInCache(NB_CACHE, false)
+                    }
+                } else {
+                    // wifi connection was lost
+                }
+            }
+        }
     }
 }
