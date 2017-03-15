@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.AsyncTask
 import android.os.Environment
 import app.MainActivity
+import app.R
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.net.URL
@@ -23,10 +24,10 @@ class PhotosUtils : AsyncTask<Any, Void, Boolean>() {
                 val intent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
                 intent.data = u
                 activity.baseContext.sendBroadcast(intent)
-                activity.popUpDown("Image enregistrée !")
+                activity.popUpDown(activity.getString(R.string.saveSuccess))
             } catch(e: Exception) {
                 e.printStackTrace()
-                activity.popUpDown("Echec dans l'enregistrement de l'image !")
+                activity.popUpDown(activity.getString(R.string.saveFailed))
             }
 
             return true

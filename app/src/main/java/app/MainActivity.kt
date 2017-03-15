@@ -45,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     var imageCache: LinkedList<Strip> = LinkedList()
     private var cacheThreads: ArrayList<AddInCache> = ArrayList()
     private var prop = Properties()
+    val loc: Locale by lazy { context.resources.configuration.locale }
 
     // Constantes auto-évaluées
     val imageView: TouchImageView by lazy { findViewById(R.id.imageMadame) as TouchImageView }
@@ -206,7 +207,7 @@ class MainActivity : AppCompatActivity() {
             titreStrip.text = currentImage!!.title
 
         } else {
-            popUpDown("Vous êtes sur le premier CommitStrip")
+            popUpDown(getString(R.string.InfoFirst))
         }
     }
 
@@ -325,10 +326,10 @@ class MainActivity : AppCompatActivity() {
                     displayPicture(true)
                 }
             }
-            t.execute(prop, 1, true)
+            t.execute(prop, 1, true, loc)
         }
         t = AddInCache(this)
-        t.execute(prop, if (displayFirst) nbImagesToCache - 1 else nbImagesToCache, false)
+        t.execute(prop, if (displayFirst) nbImagesToCache - 1 else nbImagesToCache, false, loc)
         cacheThreads.add(t)
     }
 

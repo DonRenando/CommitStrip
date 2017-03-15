@@ -17,11 +17,19 @@ open class AddInCache(private val mainActivity: MainActivity) : AsyncTask<Any, I
         val prop = params[0] as Properties
         var nbImageToCache = params[1] as Int
         var first = params[2] as Boolean
+        val locale = params[3] as Locale
         var imageUrl: Strip
         var safe_url = ""
+        var randUrl: String?
+        var firstUrl: String?
 
-        val randUrl = prop.getProperty("RANDOM_URL")
-        val firstUrl = prop.getProperty("FIRST_URL")
+        if (locale == Locale.FRANCE || locale == Locale.FRENCH) {
+            randUrl = prop.getProperty("RANDOM_URL_FR")
+            firstUrl = prop.getProperty("FIRST_URL_FR")
+        } else {
+            randUrl = prop.getProperty("RANDOM_URL")
+            firstUrl = prop.getProperty("FIRST_URL")
+        }
         val selectorImg = prop.getProperty("IMG_SELECTOR")
         val selectorTitle = prop.getProperty("TITLE_SELECTOR")
         val selectorFirst = prop.getProperty("FIRST_SELECTOR")

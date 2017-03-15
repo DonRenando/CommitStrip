@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CommitStrip</string>
+    <string name="action_settings">A propos</string>
+    <string name="action_save">Enregistrer</string>
+    <string name="close">Close</string>
+    <string name="action_fullscreen">Plein écran</string>
+    <string name="title_download">Installer Mise à Jour</string>
+    <string name="update_available">Mise à Jour</string>
+    <string name="text_download">Téléchargement Terminé</string>
+    <string name="unable_to_open_file">Impossible d\'Ouvrir le Fichier</string>
+    <string name="LastVersionAvailable">Dernière Version Disponible :</string>
+    <string name="CurrentVersion">Version installée :</string>
+    <string name="action_mise_a_jour">Mise à jour</string>
+    <string name="InfoDesc">Application non-officielle de www.commitstrip.com</string>
+    <string name="InfoMainteneur">Application maintenue par :</string>
+    <string name="InfoContrib">Contributeurs :</string>
+    <string name="InfoFirst">Vous êtes sur le premier CommitStrip !</string>
+    <string name="saveSuccess">Image enregistrée !</string>
+    <string name="saveFailed">Echec dans l\'enregistrement de l\'image !</string>
+</resources>
