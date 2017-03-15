@@ -7,14 +7,16 @@ import com.bumptech.glide.Glide
 import model.Strip
 import org.jsoup.Jsoup
 import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.*
 
 open class AddInCache(private val mainActivity: MainActivity) : AsyncTask<Any, Int, Boolean>() {
 
     override fun doInBackground(vararg params: Any): Boolean? {
         val prop = params[0] as Properties
-        val nbImageToCache = params[1] as Int
-        val first = params[2] as Boolean
+        var nbImageToCache = params[1] as Int
+        var first = params[2] as Boolean
         var imageUrl: Strip
         var safe_url = ""
 
@@ -24,7 +26,8 @@ open class AddInCache(private val mainActivity: MainActivity) : AsyncTask<Any, I
         val selectorTitle = prop.getProperty("TITLE_SELECTOR")
         val selectorFirst = prop.getProperty("FIRST_SELECTOR")
 
-        for (i in 0..nbImageToCache - 1) {
+        var i = 0
+        while (i < nbImageToCache) {
             if (isCancelled)
                 return false
             if (first) {
@@ -61,15 +64,23 @@ open class AddInCache(private val mainActivity: MainActivity) : AsyncTask<Any, I
                     return false
                 safe_url = imageUrl.url
 
-                Glide.with(mainActivity).load(safe_url).downloadOnly(mainActivity.imageView.width, mainActivity.imageView.height)
-                if (isCancelled)
-                    return false
-                mainActivity.imageCache.add(imageUrl)
+                if (isAvailable(safe_url)) {
+                    Glide.with(mainActivity).load(safe_url).downloadOnly(mainActivity.imageView.width, mainActivity.imageView.height)
+
+                    if (isCancelled)
+                        return false
+
+                    mainActivity.imageCache.add(imageUrl)
+                } else {
+                    System.err.println("ERROR when loading url : " + safe_url)
+                    i--
+                    first = false // Au cas où l'erreur a lieu sur la première image
+                }
             } catch (e: IOException) {
                 e.printStackTrace()
                 System.err.println("ERROR when loading url : " + safe_url)
             }
-
+            i++
         }
         return true
     }
@@ -119,5 +130,13 @@ open class AddInCache(private val mainActivity: MainActivity) : AsyncTask<Any, I
         return result!!
     }
 
+    private fun isAvailable(url: String): Boolean {
+        val u = URL(url)
+        val huc = u.openConnection() as HttpURLConnection
+        huc.requestMethod = "HEAD"
+        huc.connect()
+        val code = huc.responseCode
+        return code < 400
+    }
 
 }
