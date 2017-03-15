@@ -6,6 +6,7 @@ import android.app.Dialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
@@ -70,6 +71,9 @@ class MainActivity : AppCompatActivity() {
             ex.printStackTrace()
         }
 
+        val intentFilter = IntentFilter()
+        intentFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION)
+        registerReceiver(MyBroadcastReceiver(), intentFilter)
         checkWifi()
         imageHistory = FixedQueue(prop.getProperty("STACK_SIZE").toInt())
         runAddInCache(NB_CACHE, true)
