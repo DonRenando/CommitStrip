@@ -20,6 +20,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import app.updateapk.CheckUpdate
 import app.updateapk.MajActivity
 import app.utils.PermissionUtils.askPermission
 import app.utils.PermissionUtils.isOnline
@@ -83,10 +84,12 @@ class MainActivity : AppCompatActivity() {
 
     public override fun onStart() {
         super.onStart()
+        checkUpdate()
     }
 
     override fun onRestart() {
         super.onRestart()
+        checkUpdate()
     }
 
     public override fun onStop() {
@@ -350,5 +353,32 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun checkUpdate() {
+        object : CheckUpdate() {
+            override fun onPostExecute(aBoolean: Boolean?) {
+                if (!aBoolean!!) {
+                    showDialogMaj()
+                }
+            }
+        }.execute(context)
+
+    }
+    private fun showDialogMaj() {
+        val dialog = Dialog(this)
+
+        dialog.setContentView(R.layout.info_maj)
+
+        val dialogButtonMaj = dialog.findViewById(R.id.buttonMettreAJour) as Button
+        dialogButtonMaj.setOnClickListener {
+            val intentMaj = Intent(this@MainActivity, MajActivity::class.java)
+            startActivity(intentMaj)
+        }
+        val dialogButtonPasMaintenant = dialog.findViewById(R.id.buttonPasMaintenant) as Button
+
+        dialogButtonPasMaintenant.setOnClickListener { dialog.dismiss() }
+
+        dialog.show()
     }
 }

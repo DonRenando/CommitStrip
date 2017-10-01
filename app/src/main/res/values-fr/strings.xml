@@ -18,4 +18,7 @@
     <string name="InfoFirst">Vous êtes sur le premier CommitStrip !</string>
     <string name="saveSuccess">Image enregistrée !</string>
     <string name="saveFailed">Echec dans l\'enregistrement de l\'image !</string>
+    <string name="infoUpdate">Une mise à jour de l\'application est disponible</string>
+    <string name="notNow">Pas Maintenant</string>
+    <string name="update">Mettre à jour</string>
 </resources>
