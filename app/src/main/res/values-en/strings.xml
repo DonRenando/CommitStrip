@@ -19,6 +19,6 @@
     <string name="saveSuccess">Picture saved !</string>
     <string name="saveFailed">Picture saving failed !</string>
     <string name="infoUpdate">An Update is available</string>
-    <string name="notNow">Not Maintenant</string>
+    <string name="notNow">Not Now</string>
     <string name="update">Update</string>
 </resources>
